@@ -2,7 +2,8 @@ const Hapi = require("hapi");
 const Couchbase = require("couchbase");
 const UUID = require("uuid");
 const Joi = require("joi");
- 
+const inert = require('inert');
+
 const server = new Hapi.Server();
 
 // DB codes
@@ -35,7 +36,9 @@ function tryOpenBucket() {
 // Routes
 // Cannot add a route without any connections
 server.connection({ "host": "localhost", "port": 3000 });
- 
+
+server.register(inert);
+
 server.route({
     method: "GET",
     path: "/",
@@ -44,10 +47,9 @@ server.route({
     }
 });
 
-
 server.route({
     method: "GET",
-    path: "/people",
+    path: "/users",
     handler: (request, response) => {
         var statement = "SELECT `" + bucket._name + "`.* FROM `" + bucket._name + "`" //WHERE type = 'person'";
         console.log ( statement )
@@ -62,10 +64,9 @@ server.route({
     }
 });
 
-
 server.route({
     method: "POST",
-    path: "/person",
+    path: "/users",
     config: {
         validate: {
             payload: {
@@ -81,8 +82,19 @@ server.route({
             if(error) {
                 return response(error).code(500);
             }
-            return response(request.payload);
+            return response.redirect('/index.html')
         });
+    }
+});
+
+
+server.route({
+    method: 'GET',
+    path: '/{param*}',
+    handler: {
+        directory: {
+            path: __dirname
+        }
     }
 });
 
@@ -93,4 +105,3 @@ server.start(error => {
     }
     console.log("Listening at " + server.info.uri);
 });
-

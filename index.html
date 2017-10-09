@@ -3,9 +3,38 @@
 <head>
 	<meta charset="UTF-8">
 	<title>hapi & cochbase</title>
-	
+	 <link rel="stylesheet" href="tacit-css.min.css"/>
 </head>
 <body>
-	
+
+<div id="results">
+Am i gone ??
+</div>	
+<br>
+	<form action="/users" method="POST">
+		<input type="text" name="firstname">
+		<input type="text" name="lastname">
+		<input type="submit">
+	</form>
+
+
+<script>
+
+	fetch('/users').then(function(response) {
+	  // return response.blob(); // for other type parse first as needed
+		var contentType = response.headers.get("content-type");
+		if(contentType && contentType.includes("application/json")) {
+			return response.json();
+		}
+		throw new TypeError("NO JSON!");
+
+	}) .then(function(json) {
+		console.log( json );
+		document.querySelector( "#results" ).innerHTML = JSON.stringify ( json )
+	}) .catch(function(error) {
+		console.log(error);
+	});
+
+</script>
 </body>
 </html>
